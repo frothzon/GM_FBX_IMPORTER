@@ -1,4 +1,8 @@
 /// @description Initialize FBX Importer
+// -- Initialize Systems --
+fbx_vertex_formats_init();
+ui_init();
+
 // -- Window and GUI Setup --
 width = 1280;
 height = 720;
@@ -24,7 +28,7 @@ last_mouse_x = 0;
 last_mouse_y = 0;
 
 // -- Importer State --
-fbx_model = -1; // Will hold the imported model data structure
+fbx_model = fbx_model_create("empty");
 is_loading = false;
 animation_names = [];
 current_animation = -1;

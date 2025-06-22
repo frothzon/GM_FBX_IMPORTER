@@ -5,11 +5,15 @@
     {"name":"Rooms","order":2,"path":"folders/FBX Tool/Rooms.yy",},
     {"name":"Scripts","order":1,"path":"folders/FBX Tool/Scripts.yy",},
     {"name":"Camera","order":1,"path":"folders/FBX Tool/Scripts/Camera.yy",},
+    {"name":"FBX Data","order":4,"path":"folders/FBX Tool/Scripts/FBX Data.yy",},
     {"name":"Shaders","order":4,"path":"folders/FBX Tool/Shaders.yy",},
     {"name":"Sprites","order":3,"path":"folders/FBX Tool/Sprites.yy",},
   ],
   "ResourceOrderSettings":[
     {"name":"draw_grid","order":1,"path":"scripts/draw_grid/draw_grid.yy",},
+    {"name":"fbx_parser","order":3,"path":"scripts/fbx_parser/fbx_parser.yy",},
+    {"name":"fbx_structs","order":1,"path":"scripts/fbx_structs/fbx_structs.yy",},
     {"name":"lengthdir_z","order":2,"path":"scripts/lengthdir_z/lengthdir_z.yy",},
+    {"name":"ui_and_file_management","order":2,"path":"scripts/ui_and_file_management/ui_and_file_management.yy",},
   ],
 }
