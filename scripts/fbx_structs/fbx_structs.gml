@@ -23,7 +23,6 @@ function FBXModel(_name) constructor {
         show_debug_message("FBXModel '" + name + "' destroyed.");
     }
 }
-
 /// @function FBXMesh()
 /// @description Holds data for a single mesh, including its vertex buffer.
 function FBXMesh() constructor {
@@ -31,10 +30,12 @@ function FBXMesh() constructor {
     vertexBuffer = -1;
     vertexCount = 0;
     materialIndex = 0;
+    raw_vertex_data = []; // Used for bounding box calculation
+    processed_vertex_data = []; // This will hold the full {pos, nrm, uv} data for debugging
 
     static destroy = function() {
-        if (vertex_buffer_exists(vertexBuffer)) {
-            vertex_buffer_delete(vertexBuffer);
+        if (buffer_exists(vertexBuffer)) {
+            buffer_exists(vertexBuffer);
         }
     }
 }

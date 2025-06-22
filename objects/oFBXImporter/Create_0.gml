@@ -28,7 +28,8 @@ last_mouse_x = 0;
 last_mouse_y = 0;
 
 // -- Importer State --
-fbx_model = fbx_model_create("empty");
+p3d_models = [];
+model_bbox = { x1: -1, y1: -1, z1: -1, x2: 1, y2: 1, z2: 1 };
 is_loading = false;
 animation_names = [];
 current_animation = -1;
@@ -47,10 +48,42 @@ dropdown_selected = -1;
 vertex_format_begin();
 vertex_format_add_position_3d();
 global.grid_format = vertex_format_end();
-
 var grid_size = 1000;
 global.grid_vb = vertex_create_buffer();
 vertex_begin(global.grid_vb, global.grid_format);
 vertex_position_3d(global.grid_vb, 0, -grid_size, 0);
 vertex_position_3d(global.grid_vb, 0, grid_size, 0);
 vertex_end(global.grid_vb);
+
+// -- Debug Bounding Box VB Setup --
+vertex_format_begin();
+vertex_format_add_position_3d();
+global.debug_box_format = vertex_format_end();
+global.debug_box_vb = vertex_create_buffer();
+vertex_begin(global.debug_box_vb, global.debug_box_format);
+// A helper function to make adding lines cleaner
+var _add_line = function(x1, y1, z1, x2, y2, z2) {
+    vertex_position_3d(global.debug_box_vb, x1, y1, z1);
+    vertex_position_3d(global.debug_box_vb, x2, y2, z2);
+}
+// Create a 1x1x1 unit cube centered at the origin (from -0.5 to +0.5)
+var p = 0.5;
+var n = -0.5;
+// Bottom face
+_add_line(n, n, n, p, n, n);
+_add_line(p, n, n, p, p, n);
+_add_line(p, p, n, n, p, n);
+_add_line(n, p, n, n, n, n);
+// Top face
+_add_line(n, n, p, p, n, p);
+_add_line(p, n, p, p, p, p);
+_add_line(p, p, p, n, p, p);
+_add_line(n, p, p, n, n, p);
+// Vertical edges connecting top and bottom faces
+_add_line(n, n, n, n, n, p);
+_add_line(p, n, n, p, n, p);
+_add_line(p, p, n, p, p, p);
+_add_line(n, p, n, n, p, p);
+vertex_end(global.debug_box_vb);
+vertex_freeze(global.debug_box_vb);
+placeholder_tex = sprite_get_texture(s_white_pixel, 0);

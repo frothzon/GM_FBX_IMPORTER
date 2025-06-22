@@ -1,19 +1,53 @@
 /// @description Initializes and manages UI elements and file operations.
 
+/// @function p3d_models_calculate_bounding_box(models_array)
+/// @description Calculates the combined axis-aligned bounding box for an array of P3D models.
+/// @param {array} models_array An array of P3D_Class structs.
+function p3d_models_calculate_bounding_box(models_array) {
+    var min_x = 99999, min_y = 99999, min_z = 99999;
+    var max_x = -99999, max_y = -99999, max_z = -99999;
+
+    if (!is_array(models_array) || array_length(models_array) == 0) {
+        return { x1: -1, y1: -1, z1: -1, x2: 1, y2: 1, z2: 1 };
+    }
+
+    // Iterate through each model
+    for (var i = 0; i < array_length(models_array); i++) {
+        var model = models_array[i];
+        if (!is_struct(model) || !is_array(model.vert_list)) continue;
+        
+        var verts = model.vert_list;
+        // Iterate through each vertex in the model
+        for (var j = 0; j < array_length(verts); j++) {
+            var vert_pos = verts[j];
+            min_x = min(min_x, vert_pos[0]);
+            max_x = max(max_x, vert_pos[0]);
+            min_y = min(min_y, vert_pos[1]);
+            max_y = max(max_y, vert_pos[1]);
+            min_z = min(min_z, vert_pos[2]);
+            max_z = max(max_z, vert_pos[2]);
+        }
+    }
+
+    // Handle case where no vertices were found
+    if (min_x == 99999) {
+        return { x1: -1, y1: -1, z1: -1, x2: 1, y2: 1, z2: 1 };
+    }
+
+    show_debug_message("Model bounding box calculated.");
+    return { x1: min_x, y1: min_y, z1: min_z, x2: max_x, y2: max_y, z2: max_z };
+}
+
+
 function ui_init() {
-    /// @description Defines UI element properties.
     global.ui_button_import = { x: 10, y: 110, w: 120, h: 30, text: "Import FBX" };
 }
 
 function draw_ui() {
-    /// @description Draws all UI elements.
     if (!show_ui) return;
-
     var btn = global.ui_button_import;
     var mx = window_mouse_get_x();
     var my = window_mouse_get_y();
-
-    // Draw Import Button
     var is_hover = (mx >= btn.x && mx <= btn.x + btn.w && my >= btn.y && my <= btn.y + btn.h);
     var col = is_hover ? c_ltgray : c_dkgray;
     draw_set_color(col);
@@ -26,7 +60,6 @@ function draw_ui() {
     draw_set_color(c_black);
     draw_text(btn.x + btn.w / 2, btn.y + btn.h / 2, btn.text);
     
-    // Draw help text
     draw_set_halign(fa_left);
     draw_set_valign(fa_top);
     draw_set_color(c_white);
@@ -37,14 +70,13 @@ function draw_ui() {
 }
 
 function check_ui_clicks() {
-    /// @description Checks for clicks on UI elements.
     if (!show_ui) return;
-
+    
     if (mouse_check_button_pressed(mb_left)) {
         var btn = global.ui_button_import;
         var mx = window_mouse_get_x();
         var my = window_mouse_get_y();
-
+        
         if (mx >= btn.x && mx <= btn.x + btn.w && my >= btn.y && my <= btn.y + btn.h) {
             ui_import_fbx();
         }
@@ -52,21 +84,29 @@ function check_ui_clicks() {
 }
 
 function ui_import_fbx() {
-    /// @description Opens file dialog and initiates parsing.
     var filepath = get_open_filename_ext("FBX ASCII File|*.fbx|All Files|*.*", "", "Import FBX Model", "Import");
     
     if (file_exists(filepath)) {
         show_debug_message("Importing FBX file: " + filepath);
         
-        // Clean up old model first to prevent memory leaks
-        if (is_struct(fbx_model)) {
-            fbx_model.destroy();
+        // Destroy old model data to prevent memory leaks
+        for (var i = 0; i < array_length(p3d_models); i++) {
+            p3d_models[i].destroy();
         }
+        p3d_models = [];
+
+        // Load the new model using the P3D pipeline
+        p3d_models = p3d_load_fbx(filepath);
         
-        // Call the main parser function
-        fbx_model = fbx_parse_file(filepath);
+        if (array_length(p3d_models) > 0) {
+            // Calculate the new bounding box and frame the camera
+            model_bbox = p3d_models_calculate_bounding_box(p3d_models);
+            camera_frame_bounding_box(model_bbox);
+        }
         
     } else {
         show_debug_message("File not selected or does not exist.");
     }
+    
+    show_debug_message($"Models ready for rendering: {array_length(p3d_models)}");
 }
