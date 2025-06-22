@@ -16,11 +16,15 @@ draw_grid();
 // Draw the imported FBX model
 if (array_length(p3d_models) > 0) {
     matrix_set(matrix_world, matrix_build_identity());
+    shader_set(shd_simple_unlit);
+    
     // Loop through each P3D model and submit its vertex buffer
     for (var i = 0; i < array_length(p3d_models); i++) {
         var model = p3d_models[i];
         vertex_submit(model.vbuffer, pr_trianglelist, placeholder_tex);
     }
+    
+    shader_reset();
 }
 
 // -- Draw Debug Bounding Box --
@@ -41,7 +45,4 @@ if (is_struct(model_bbox)) {
 }
 
 // -- Draw GUI --
-gpu_set_ztestenable(false);
-gpu_set_zwriteenable(false);
-gpu_set_cullmode(cull_noculling);
-// Note: camera_apply for the GUI is handled in the Draw GUI event
+// Note: GUI drawing is now correctly handled in the Draw GUI event (Draw_64.gml)
