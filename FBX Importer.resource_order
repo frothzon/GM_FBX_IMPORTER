@@ -1,0 +1,15 @@
+{
+  "FolderOrderSettings":[
+    {"name":"FBX Tool","order":16,"path":"folders/FBX Tool.yy",},
+    {"name":"Fonts","order":5,"path":"folders/FBX Tool/Fonts.yy",},
+    {"name":"Rooms","order":2,"path":"folders/FBX Tool/Rooms.yy",},
+    {"name":"Scripts","order":1,"path":"folders/FBX Tool/Scripts.yy",},
+    {"name":"Camera","order":1,"path":"folders/FBX Tool/Scripts/Camera.yy",},
+    {"name":"Shaders","order":4,"path":"folders/FBX Tool/Shaders.yy",},
+    {"name":"Sprites","order":3,"path":"folders/FBX Tool/Sprites.yy",},
+  ],
+  "ResourceOrderSettings":[
+    {"name":"draw_grid","order":1,"path":"scripts/draw_grid/draw_grid.yy",},
+    {"name":"lengthdir_z","order":2,"path":"scripts/lengthdir_z/lengthdir_z.yy",},
+  ],
+}
