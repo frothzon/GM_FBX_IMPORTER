@@ -1,4 +1,5 @@
 /// @description Initialize FBX Importer
+
 // -- Initialize Systems --
 fbx_vertex_formats_init();
 ui_init();
@@ -28,7 +29,7 @@ last_mouse_x = 0;
 last_mouse_y = 0;
 
 // -- Importer State --
-p3d_models = [];
+fbx_model = undefined; // Will hold the entire imported model struct
 model_bbox = { x1: -1, y1: -1, z1: -1, x2: 1, y2: 1, z2: 1 };
 is_loading = false;
 animation_names = [];
@@ -86,4 +87,5 @@ _add_line(p, p, n, p, p, p);
 _add_line(n, p, n, n, p, p);
 vertex_end(global.debug_box_vb);
 vertex_freeze(global.debug_box_vb);
+
 placeholder_tex = sprite_get_texture(s_white_pixel, 0);

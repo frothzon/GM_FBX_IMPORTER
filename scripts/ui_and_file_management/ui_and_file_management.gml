@@ -1,23 +1,23 @@
 /// @description Initializes and manages UI elements and file operations.
 
-/// @function p3d_models_calculate_bounding_box(models_array)
-/// @description Calculates the combined axis-aligned bounding box for an array of P3D models.
-/// @param {array} models_array An array of P3D_Class structs.
-function p3d_models_calculate_bounding_box(models_array) {
+/// @function fbx_model_calculate_bounding_box(fbx_model_struct)
+/// @description Calculates the combined axis-aligned bounding box for an FBXModel.
+/// @param {struct} fbx_model_struct An FBXModel struct.
+function fbx_model_calculate_bounding_box(fbx_model_struct) {
     var min_x = 99999, min_y = 99999, min_z = 99999;
     var max_x = -99999, max_y = -99999, max_z = -99999;
 
-    if (!is_array(models_array) || array_length(models_array) == 0) {
+    if (!is_struct(fbx_model_struct) || !is_array(fbx_model_struct.meshes) || array_length(fbx_model_struct.meshes) == 0) {
         return { x1: -1, y1: -1, z1: -1, x2: 1, y2: 1, z2: 1 };
     }
 
-    // Iterate through each model
-    for (var i = 0; i < array_length(models_array); i++) {
-        var model = models_array[i];
-        if (!is_struct(model) || !is_array(model.vert_list)) continue;
+    // Iterate through each mesh
+    for (var i = 0; i < array_length(fbx_model_struct.meshes); i++) {
+        var mesh = fbx_model_struct.meshes[i];
+        if (!is_struct(mesh) || !is_array(mesh.raw_vertex_data)) continue;
         
-        var verts = model.vert_list;
-        // Iterate through each vertex in the model
+        var verts = mesh.raw_vertex_data;
+        // Iterate through each vertex in the mesh
         for (var j = 0; j < array_length(verts); j++) {
             var vert_pos = verts[j];
             min_x = min(min_x, vert_pos[0]);
@@ -33,11 +33,10 @@ function p3d_models_calculate_bounding_box(models_array) {
     if (min_x == 99999) {
         return { x1: -1, y1: -1, z1: -1, x2: 1, y2: 1, z2: 1 };
     }
-
+    
     show_debug_message("Model bounding box calculated.");
     return { x1: min_x, y1: min_y, z1: min_z, x2: max_x, y2: max_y, z2: max_z };
 }
-
 
 function ui_init() {
     global.ui_button_import = { x: 10, y: 110, w: 120, h: 30, text: "Import FBX" };
@@ -54,12 +53,12 @@ function draw_ui() {
     draw_rectangle(btn.x, btn.y, btn.x + btn.w, btn.y + btn.h, false);
     draw_set_color(c_white);
     draw_rectangle(btn.x, btn.y, btn.x + btn.w, btn.y + btn.h, true);
-    
+
     draw_set_halign(fa_center);
     draw_set_valign(fa_middle);
     draw_set_color(c_black);
     draw_text(btn.x + btn.w / 2, btn.y + btn.h / 2, btn.text);
-    
+
     draw_set_halign(fa_left);
     draw_set_valign(fa_top);
     draw_set_color(c_white);
@@ -71,12 +70,12 @@ function draw_ui() {
 
 function check_ui_clicks() {
     if (!show_ui) return;
-    
+
     if (mouse_check_button_pressed(mb_left)) {
         var btn = global.ui_button_import;
         var mx = window_mouse_get_x();
         var my = window_mouse_get_y();
-        
+
         if (mx >= btn.x && mx <= btn.x + btn.w && my >= btn.y && my <= btn.y + btn.h) {
             ui_import_fbx();
         }
@@ -85,22 +84,22 @@ function check_ui_clicks() {
 
 function ui_import_fbx() {
     var filepath = get_open_filename_ext("FBX ASCII File|*.fbx|All Files|*.*", "", "Import FBX Model", "Import");
-    
+
     if (file_exists(filepath)) {
         show_debug_message("Importing FBX file: " + filepath);
-        
-        // Destroy old model data to prevent memory leaks
-        for (var i = 0; i < array_length(p3d_models); i++) {
-            p3d_models[i].destroy();
-        }
-        p3d_models = [];
 
-        // Load the new model using the P3D pipeline
-        p3d_models = p3d_load_fbx(filepath);
-        
-        if (array_length(p3d_models) > 0) {
+        // Destroy old model data to prevent memory leaks
+        if (is_struct(fbx_model)) {
+            fbx_model.destroy();
+        }
+        fbx_model = undefined;
+
+        // Load the new model using the full FBX parser
+        fbx_model = fbx_parse_file(filepath);
+
+        if (is_struct(fbx_model) && array_length(fbx_model.meshes) > 0) {
             // Calculate the new bounding box and frame the camera
-            model_bbox = p3d_models_calculate_bounding_box(p3d_models);
+            model_bbox = fbx_model_calculate_bounding_box(fbx_model);
             camera_frame_bounding_box(model_bbox);
         }
         
@@ -108,5 +107,6 @@ function ui_import_fbx() {
         show_debug_message("File not selected or does not exist.");
     }
     
-    show_debug_message($"Models ready for rendering: {array_length(p3d_models)}");
+    var model_valid = is_struct(fbx_model);
+    show_debug_message($"Model ready for rendering: {model_valid}");
 }

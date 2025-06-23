@@ -23,6 +23,7 @@ function FBXModel(_name) constructor {
         show_debug_message("FBXModel '" + name + "' destroyed.");
     }
 }
+
 /// @function FBXMesh()
 /// @description Holds data for a single mesh, including its vertex buffer.
 function FBXMesh() constructor {
@@ -34,8 +35,8 @@ function FBXMesh() constructor {
     processed_vertex_data = []; // This will hold the full {pos, nrm, uv} data for debugging
 
     static destroy = function() {
-        if (buffer_exists(vertexBuffer)) {
-            buffer_exists(vertexBuffer);
+        if (vertex_buffer_exists(vertexBuffer)) {
+            vertex_buffer_delete(vertexBuffer);
         }
     }
 }
@@ -49,10 +50,24 @@ function FBXRig() constructor {
 /// @function FBXBone()
 /// @description Holds data for a single bone in the skeleton.
 function FBXBone() constructor {
+    fbx_id = -1; // The unique ID from the FBX file, used for parsing
     name = "default_bone";
     parentIndex = -1; // -1 indicates a root bone
-    inverseBindMatrix = matrix_build_identity();
-    localBindMatrix = matrix_build_identity();
+    
+    // Initialize inverseBindMatrix as a 2D identity matrix to prevent errors.
+    inverseBindMatrix = [
+        [1, 0, 0, 0],
+        [0, 1, 0, 0],
+        [0, 0, 1, 0],
+        [0, 0, 0, 1]
+    ];
+    
+    localBindMatrix = [
+        [1, 0, 0, 0],
+        [0, 1, 0, 0],
+        [0, 0, 1, 0],
+        [0, 0, 0, 1]
+    ];
 }
 
 /// @function FBXAnimation()
